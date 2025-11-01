@@ -1,0 +1,1 @@
+INSERT INTO CRMUser (name, password) VALUES ('adimn', '123');
