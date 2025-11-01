@@ -9,3 +9,7 @@ server:
   port: 8080
   servlet:
     context-path: /crm  # 上下文路径
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true # 开启驼峰命名映射
