@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        /* 顶部导航栏 */
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .back-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 主容器 */
+        .main-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 操作栏 */
+        .action-bar {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 250px;
+            margin-right: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        /* 数据表格 */
+        .data-table {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .radio-select {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .radio-select input[type="radio"] {
+            margin: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        
+        /* 提示信息 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .toast.success {
+            background-color: #2ecc71;
+        }
+        
+        .toast.error {
+            background-color: #e74c3c;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="header">
+        <div>
+            <div class="page-title">用户管理</div>
+            <div class="breadcrumb">首页 > 系统设置 > 用户管理</div>
+        </div>
+        <a href="MainPage.html" class="back-btn">返回主页</a>
+    </div>
+    
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="search-box">
+                <input type="text" id="searchName" class="search-input" placeholder="请输入用户名">
+                <button class="btn btn-primary" onclick="searchUsers()">查询</button>
+            </div>
+            <div>
+                <button class="btn btn-success" onclick="showAddUserModal()">添加</button>
+                <button class="btn btn-warning" onclick="updateSelectedUser()">修改</button>
+                <button class="btn btn-danger" onclick="deleteSelectedUsers()">删除</button>
+            </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="50">选择</th>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>状态</th>
+                        <th>角色</th>
+                        <th>创建时间</th>
+                        <th>最后修改时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- 数据将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 添加用户弹窗 -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">添加用户</div>
+                <button class="close-btn" onclick="closeModal('addUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" id="addUserName" class="form-control" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" id="addUserPassword" class="form-control" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">角色</label>
+                    <input type="text" id="addUserRole" class="form-control" placeholder="请输入角色">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态</label>
+                    <select id="addUserStatus" class="form-control">
+                        <option value="enabled">启用</option>
+                        <option value="disabled">禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveAddUser()">保存</button>
+                <button class="btn" onclick="closeModal('addUserModal')">返回</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 修改用户弹窗 -->
+    <div id="updateUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">修改用户</div>
+                <button class="close-btn" onclick="closeModal('updateUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="updateUserId">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" id="updateUserName" class="form-control" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" id="updateUserPassword" class="form-control" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">角色</label>
+                    <input type="text" id="updateUserRole" class="form-control" placeholder="请输入角色">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态</label>
+                    <select id="updateUserStatus" class="form-control">
+                        <option value="enabled">启用</option>
+                        <option value="disabled">禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveUpdateUser()">保存</button>
+                <button class="btn" onclick="closeModal('updateUserModal')">返回</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提示信息 -->
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        // 页面加载时获取所有用户数据
+        window.onload = function() {
+            loadAllUsers();
+        };
+        
+        // 加载所有用户数据
+        function loadAllUsers() {
+            fetch('/crm/account/selectAll')
+                .then(response => response.json())
+                .then(data => {
+                    renderUserTable(data);
+                })
+                .catch(error => {
+                    console.error('获取用户数据失败:', error);
+                    showToast('获取用户数据失败', 'error');
+                });
+        }
+        
+        // 渲染用户表格
+        function renderUserTable(users) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const status = user.status || user.Status;
+                // 将英文状态转换为中文显示
+                const displayStatus = status === 'enabled' ? '启用' : (status === 'disabled' ? '禁用' : status);
+                const isEnabled = status === 'enabled' || status === '启用';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="radio-select">
+                        <input type="radio" name="selectedUser" value="${user.id}">
+                    </td>
+                    <td>${user.id}</td>
+                    <td>${user.name || user.Name}</td>
+                    <td>${displayStatus}</td>
+                    <td>${user.role || user.Role}</td>
+                    <td>${user.createTime}</td>
+                    <td>${user.lastChangeTime}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-small ${isEnabled ? 'btn-warning' : 'btn-success'}" 
+                                onclick="toggleUserStatus(${user.id}, '${status}')">
+                            ${isEnabled ? '禁用' : '启用'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 搜索用户
+        function searchUsers() {
+            const searchName = document.getElementById('searchName').value.trim();
+            
+            if (!searchName) {
+                loadAllUsers();
+                return;
+            }
+            
+            fetch(`/crm/account/searchUser?name=${searchName}`)
+                .then(response => response.json())
+                .then(data => {
+                    renderUserTable(data);
+                })
+                .catch(error => {
+                    console.error('搜索用户失败:', error);
+                    showToast('搜索用户失败', 'error');
+                });
+        }
+        
+        // 显示添加用户弹窗
+        function showAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'flex';
+        }
+        
+        // 保存添加的用户
+        function saveAddUser() {
+            const name = document.getElementById('addUserName').value.trim();
+            const password = document.getElementById('addUserPassword').value.trim();
+            const role = document.getElementById('addUserRole').value.trim();
+            const status = document.getElementById('addUserStatus').value;
+            
+            if (!name || !password || !role) {
+                showToast('请填写完整信息', 'error');
+                return;
+            }
+            
+            fetch('/crm/account/insertUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `name=${name}&password=${password}&role=${role}&status=${status}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data && data !== '0') {
+                    showToast('添加用户成功', 'success');
+                    closeModal('addUserModal');
+                    loadAllUsers();
+                    // 清空表单
+                    document.getElementById('addUserName').value = '';
+                    document.getElementById('addUserPassword').value = '';
+                    document.getElementById('addUserRole').value = '';
+                    document.getElementById('addUserStatus').value = 'enabled';
+                } else {
+                    showToast('添加用户失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('添加用户失败:', error);
+                showToast('添加用户失败', 'error');
+            });
+        }
+        
+        // 修改选中的用户
+        function updateSelectedUser() {
+            const selectedRadio = document.querySelector('input[name="selectedUser"]:checked');
+            
+            if (!selectedRadio) {
+                showToast('请先选择要修改的用户', 'error');
+                return;
+            }
+            
+            const userId = selectedRadio.value;
+            
+            // 获取用户信息
+            fetch(`/crm/account/selectAll`)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.find(u => u.id == userId);
+                    if (user) {
+                        // 填充表单
+                        document.getElementById('updateUserId').value = user.id;
+                        document.getElementById('updateUserName').value = user.name || user.Name;
+                        document.getElementById('updateUserRole').value = user.role || user.Role;
+                        // 确保状态值使用英文
+                        const status = user.status || user.Status;
+                        document.getElementById('updateUserStatus').value = (status === 'enabled' || status === 'disabled') ? status : 'enabled';
+                        
+                        // 显示弹窗
+                        document.getElementById('updateUserModal').style.display = 'flex';
+                    }
+                })
+                .catch(error => {
+                    console.error('获取用户信息失败:', error);
+                    showToast('获取用户信息失败', 'error');
+                });
+        }
+        
+        // 保存修改的用户
+        function saveUpdateUser() {
+            const id = document.getElementById('updateUserId').value;
+            const name = document.getElementById('updateUserName').value.trim();
+            const password = document.getElementById('updateUserPassword').value.trim();
+            const role = document.getElementById('updateUserRole').value.trim();
+            const status = document.getElementById('updateUserStatus').value;
+            
+            if (!name || !role) {
+                showToast('请填写完整信息', 'error');
+                return;
+            }
+            
+            fetch('/crm/account/updateUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${id}&name=${name}&password=${password}&role=${role}&status=${status}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data && data !== '0') {
+                    showToast('修改用户成功', 'success');
+                    closeModal('updateUserModal');
+                    loadAllUsers();
+                } else {
+                    showToast('修改用户失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('修改用户失败:', error);
+                showToast('修改用户失败', 'error');
+            });
+        }
+        
+        // 删除选中的用户
+        function deleteSelectedUsers() {
+            const selectedRadios = document.querySelectorAll('input[name="selectedUser"]:checked');
+            
+            if (selectedRadios.length === 0) {
+                showToast('请先选择要删除的用户', 'error');
+                return;
+            }
+            
+            if (!confirm('确定要删除选中的用户吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            // 逐个删除用户
+            let deleteCount = 0;
+            let successCount = 0;
+            
+            selectedRadios.forEach(radio => {
+                const userId = radio.value;
+                
+                fetch(`/crm/account/deleteUser?id=${userId}`)
+                    .then(response => response.text())
+                    .then(data => {
+                        deleteCount++;
+                        if (data && data !== '0') {
+                            successCount++;
+                        }
+                        
+                        // 所有删除请求完成后
+                        if (deleteCount === selectedRadios.length) {
+                            if (successCount === selectedRadios.length) {
+                                showToast('删除用户成功', 'success');
+                            } else {
+                                showToast(`删除用户成功：${successCount}，失败：${selectedRadios.length - successCount}`, 'error');
+                            }
+                            loadAllUsers();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('删除用户失败:', error);
+                        deleteCount++;
+                        if (deleteCount === selectedRadios.length) {
+                            showToast('删除用户失败', 'error');
+                            loadAllUsers();
+                        }
+                    });
+            });
+        }
+        
+        // 切换用户状态
+        function toggleUserStatus(userId, currentStatus) {
+            // 处理状态值的兼容性，支持中文和英文
+            const isDisabled = currentStatus === '禁用' || currentStatus === 'disabled';
+            const url = isDisabled ? '/crm/account/enableUser' : '/crm/account/disableUser';
+            
+            fetch(`${url}?id=${userId}`)
+                .then(response => response.text())
+                .then(data => {
+                    if (data && data !== '0') {
+                        showToast(`${isDisabled ? '启用' : '禁用'}用户成功`, 'success');
+                        loadAllUsers();
+                    } else {
+                        showToast(`${isDisabled ? '启用' : '禁用'}用户失败`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error(`${isDisabled ? '启用' : '禁用'}用户失败:`, error);
+                    showToast(`${isDisabled ? '启用' : '禁用'}用户失败`, 'error');
+                });
+        }
+        
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 显示提示信息
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
